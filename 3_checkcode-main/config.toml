@@ -1,0 +1,28 @@
+# REQUIRED
+# file containing a list of ips, cidrs, or domains
+target_list = "targets.txt"
+
+# REQUIRED
+# file containing things to exclude scanning
+exclusion_list = "exclusions.txt"
+
+# REQUIRED
+# additional scan options, leave as default unless you want to change them.
+# default looks at the most commmon ports
+scan_opts = "-T5 -Pn --open -sV -n -F"
+
+# REQUIRED
+# when to scan - be mindful of how long your scans run
+# use https://crontab.guru to figure out cron syntax
+# container uses utc time
+cron = "@daily"
+
+# OPTIONAL - findings are also printed as log, leave the url empty if you do not want to enable this
+# webhook to send post request to for new findings
+# post body: {"msg":CHANGE}
+# if webhook service has rate limiting, this may not work perfectly. you'd need to change the code
+notification_url = ""
+
+# REQUIRED
+# notify even if no changes were detected - default is true
+notify_on_no_change = true

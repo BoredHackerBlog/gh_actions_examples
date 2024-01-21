@@ -1,0 +1,7 @@
+apscheduler
+toml
+pyndiff
+requests
+httpie==3.0.0
+aiohttp==3.7.2
+definitely-not-requests==0.0.1

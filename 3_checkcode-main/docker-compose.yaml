@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+    portwatch2:
+        build: .
+        image: portwatch2
+        volumes:
+            - ./:/app
